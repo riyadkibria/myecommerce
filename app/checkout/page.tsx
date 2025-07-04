@@ -2,6 +2,7 @@
 
 import { useCart } from "@/app/context/CartContext";
 import { useState } from "react";
+import { FaUser, FaMapMarkerAlt, FaPhoneAlt } from "react-icons/fa";
 
 export default function CheckoutPage() {
   const { cart } = useCart();
@@ -12,21 +13,47 @@ export default function CheckoutPage() {
     phone: "",
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    address: "",
+    phone: "",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const totalPrice = cart.reduce(
     (total, item) => total + Number(item.price || 0) * item.quantity,
     0
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = () => {
-    alert(
-      `Order Confirmed!\n\nName: ${form.name}\nAddress: ${form.address}\nPhone: ${form.phone}\nTotal: $${totalPrice.toFixed(
-        2
-      )}`
-    );
+    const newErrors = {
+      name: form.name.trim() ? "" : "Name is required",
+      address: form.address.trim() ? "" : "Address is required",
+      phone: form.phone.trim() ? "" : "Phone number is required",
+    };
+
+    setErrors(newErrors);
+
+    const hasErrors = Object.values(newErrors).some((e) => e !== "");
+    if (hasErrors) return;
+
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      alert(
+        `✅ Order Confirmed!\n\nName: ${form.name}\nAddress: ${form.address}\nPhone: ${form.phone}\nTotal: $${totalPrice.toFixed(
+          2
+        )}`
+      );
+      setIsSubmitting(false);
+    }, 1500);
   };
 
   if (cart.length === 0) {
@@ -43,7 +70,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 sm:p-10">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 sm:p-10">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT: Product Table */}
         <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6 sm:p-10 overflow-x-auto">
@@ -96,52 +123,70 @@ export default function CheckoutPage() {
           <div className="space-y-5">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Name
+                <div className="flex items-center gap-2">
+                  <FaUser className="text-gray-400" /> Name
+                </div>
               </label>
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 type="text"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full border ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 placeholder="Your full name"
               />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
 
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                Address
+                <div className="flex items-center gap-2">
+                  <FaMapMarkerAlt className="text-gray-400" /> Address
+                </div>
               </label>
               <input
                 name="address"
                 value={form.address}
                 onChange={handleChange}
                 type="text"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full border ${
+                  errors.address ? "border-red-500" : "border-gray-300"
+                } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 placeholder="Street, City, ZIP"
               />
+              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
             </div>
 
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                <div className="flex items-center gap-2">
+                  <FaPhoneAlt className="text-gray-400" /> Phone Number
+                </div>
               </label>
               <input
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
                 type="tel"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full border ${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                } rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 placeholder="+880 1XXXXXXXXX"
               />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
           </div>
 
           <button
             onClick={handleSubmit}
-            className="mt-8 w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md active:scale-95"
+            disabled={isSubmitting}
+            className={`mt-8 w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 px-6 rounded-lg shadow-md active:scale-95 ${
+              isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
-            Confirm Order
+            {isSubmitting ? "Processing..." : "Confirm Order"}
           </button>
         </div>
       </div>
