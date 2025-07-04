@@ -5,7 +5,6 @@ import { useCart } from "@/app/context/CartContext";
 export default function CheckoutPage() {
   const { cart } = useCart();
 
-  // Calculate total price safely by coercing price to number
   const totalPrice = cart.reduce(
     (total, item) => total + Number(item.price || 0) * item.quantity,
     0
@@ -13,47 +12,55 @@ export default function CheckoutPage() {
 
   if (cart.length === 0) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-8">
-        <p className="text-gray-500 text-lg">Your cart is empty.</p>
+      <main className="min-h-screen flex items-center justify-center p-6 bg-gray-100">
+        <div className="bg-white shadow-md rounded-xl p-10 text-center max-w-md w-full">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-500">Start adding items to checkout.</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen max-w-4xl mx-auto p-8 bg-white shadow-md rounded-md mt-10">
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+    <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl p-10">
+        <h1 className="text-4xl font-bold text-gray-800 mb-10">Checkout</h1>
 
-      {/* Cart items list */}
-      <div className="space-y-4 mb-8">
-        {cart.map((item) => (
-          <div
-            key={item.name}
-            className="flex justify-between items-center border-b pb-2"
-          >
-            <div>
-              <p className="font-medium text-gray-900">{item.name}</p>
-              <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+        <div className="space-y-6">
+          {cart.map((item) => (
+            <div
+              key={item.name}
+              className="flex justify-between items-start bg-gray-50 border border-gray-200 p-5 rounded-xl hover:shadow-sm transition"
+            >
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {item.name}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Quantity: {item.quantity}
+                </p>
+              </div>
+              <p className="text-lg font-medium text-green-600">
+                ${(Number(item.price) * item.quantity).toFixed(2)}
+              </p>
             </div>
-            <p className="font-semibold text-green-600">
-              ${(Number(item.price) * item.quantity).toFixed(2)}
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Total Price */}
-      <div className="flex justify-between font-semibold text-xl border-t pt-4 mb-8">
-        <span>Total:</span>
-        <span>${totalPrice.toFixed(2)}</span>
-      </div>
+        <div className="mt-10 border-t pt-6 flex justify-between items-center text-xl font-semibold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-50 p-4 rounded-xl">
+          <span>Total:</span>
+          <span className="text-blue-600">${totalPrice.toFixed(2)}</span>
+        </div>
 
-      {/* Confirm Purchase Button */}
-      <button
-        onClick={() => alert("Thank you for your purchase!")}
-        className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition"
-      >
-        Confirm Purchase
-      </button>
+        <button
+          onClick={() => alert("Thank you for your purchase!")}
+          className="mt-8 w-full bg-blue-600 text-white py-4 text-lg font-bold rounded-xl hover:bg-blue-700 active:scale-95 transition"
+        >
+          Confirm Purchase
+        </button>
+      </div>
     </main>
   );
 }
