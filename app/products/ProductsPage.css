@@ -1,0 +1,76 @@
+.page-container {
+  position: relative;
+  padding: 1.5rem;
+  min-height: 100vh;
+  background-color: #f9fafb;
+  font-family: "Inter", sans-serif;
+}
+
+.product-section {
+  width: 100%;
+}
+
+/* Floating Cart Icon (FAB Style) */
+.cart-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #1f2937;
+  border: none;
+  border-radius: 50%;
+  padding: 0.9rem;
+  cursor: pointer;
+  z-index: 60;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.cart-fab:hover {
+  background-color: #111827;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0.2rem 0.45rem;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+/* Slide-in Cart Drawer */
+.cart-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cart-drawer {
+  width: 100%;
+  max-width: 320px;
+  background: white;
+  height: 100%;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
