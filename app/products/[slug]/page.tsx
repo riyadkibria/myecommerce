@@ -88,7 +88,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
         </div>
       </main>
     );
-  } catch (err) {
-    return notFound();
-  }
+  } catch {
+  return notFound();
+}
 }
