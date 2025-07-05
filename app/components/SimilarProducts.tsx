@@ -27,7 +27,10 @@ interface ProductStory {
 }
 
 export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
-  if (!relatedRefs || relatedRefs.length === 0) return null;
+  if (!relatedRefs || relatedRefs.length === 0) {
+    console.log("SimilarProducts: No relatedRefs passed or empty");
+    return null;
+  }
 
   const relatedProducts = await Promise.all(
     relatedRefs.map(async (rel) => {
@@ -36,7 +39,8 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
           version: "draft",
         });
         return res.data.story as ProductStory;
-      } catch {
+      } catch (error) {
+        console.error(`SimilarProducts: Failed to fetch related product '${rel.full_slug}'`, error);
         return null;
       }
     })
@@ -44,7 +48,10 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
 
   const filtered = relatedProducts.filter(Boolean) as ProductStory[];
 
-  if (filtered.length === 0) return null;
+  if (filtered.length === 0) {
+    console.log("SimilarProducts: No valid related products fetched");
+    return null;
+  }
 
   return (
     <section className="mt-20 max-w-6xl mx-auto">
