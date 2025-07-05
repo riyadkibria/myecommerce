@@ -1,5 +1,3 @@
-// components/SimilarProducts.tsx
-
 import StoryblokClient from "storyblok-js-client";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,11 +6,6 @@ const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
   cache: { clear: "auto", type: "memory" },
 });
-
-interface RelatedRef {
-  uuid: string;
-  full_slug: string;
-}
 
 interface ProductContent {
   name: string;
@@ -26,23 +19,45 @@ interface ProductStory {
   content: ProductContent;
 }
 
-export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
-  console.log("SimilarProducts: relatedRefs =", relatedRefs);  // <-- Added here
-
+export default async function SimilarProducts({ relatedRefs }: { relatedRefs: string[] }) {
   if (!relatedRefs || relatedRefs.length === 0) {
     console.log("SimilarProducts: No relatedRefs passed or empty");
     return null;
   }
 
-  const relatedProducts = await Promise.all(
-    relatedRefs.map(async (rel) => {
+  // First, fetch each story by UUID to get full_slug
+  const relatedStories = await Promise.all(
+    relatedRefs.map(async (uuid) => {
       try {
-        const res = await Storyblok.get(`cdn/stories/${rel.full_slug}`, {
+        const res = await Storyblok.get(`cdn/stories/${uuid}`, {
+          version: "draft",
+          by_uuids: true,
+        });
+        return res.data.stories?.[0] as ProductStory;
+      } catch (error) {
+        console.error(`SimilarProducts: Failed to fetch story by UUID '${uuid}'`, error);
+        return null;
+      }
+    })
+  );
+
+  const validStories = relatedStories.filter(Boolean) as ProductStory[];
+
+  if (validStories.length === 0) {
+    console.log("SimilarProducts: No valid stories found from UUIDs");
+    return null;
+  }
+
+  // Now, fetch full product data by full_slug
+  const relatedProducts = await Promise.all(
+    validStories.map(async (story) => {
+      try {
+        const res = await Storyblok.get(`cdn/stories/${story.full_slug}`, {
           version: "draft",
         });
         return res.data.story as ProductStory;
       } catch (error) {
-        console.error(`SimilarProducts: Failed to fetch related product '${rel.full_slug}'`, error);
+        console.error(`SimilarProducts: Failed to fetch story by slug '${story.full_slug}'`, error);
         return null;
       }
     })
