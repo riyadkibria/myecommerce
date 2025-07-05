@@ -44,6 +44,10 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
     if (!response?.data?.story?.content) return notFound();
 
     const product: MyProduct = response.data.story.content;
+
+    // Debug: Check relatedproducts data from Storyblok
+    console.log("Related products field:", product.relatedproducts);
+
     const imageUrl = getImageUrl(product.image);
 
     return (
@@ -84,7 +88,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
           <CartWrapper />
         </div>
 
-        {/* ✅ Similar Products */}
+        {/* Similar Products */}
         <SimilarProducts relatedRefs={product.relatedproducts || []} />
       </main>
     );
