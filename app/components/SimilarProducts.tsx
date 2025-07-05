@@ -27,6 +27,8 @@ interface ProductStory {
 }
 
 export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
+  console.log("SimilarProducts: relatedRefs =", relatedRefs);  // <-- Added here
+
   if (!relatedRefs || relatedRefs.length === 0) {
     console.log("SimilarProducts: No relatedRefs passed or empty");
     return null;
