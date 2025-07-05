@@ -2,18 +2,25 @@ import StoryblokClient from "storyblok-js-client";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
-import CartWrapper from "./CartWrapper"; // or wherever you put it
+import CartWrapper from "./CartWrapper";
+import SimilarProducts from "@/components/SimilarProducts"; // ✅ import the component
 
 const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
   cache: { clear: "auto", type: "memory" },
 });
 
+interface RelatedRef {
+  uuid: string;
+  full_slug: string;
+}
+
 interface MyProduct {
   name: string;
   description: string;
   Price?: number | string;
   image?: { filename: string } | string;
+  relatedproducts?: RelatedRef[]; // ✅ ensure field matches your Storyblok field
 }
 
 function getImageUrl(image: MyProduct["image"]): string | null {
@@ -26,7 +33,7 @@ function getImageUrl(image: MyProduct["image"]): string | null {
 }
 
 export default async function Page(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params; // await here!
+  const params = await props.params;
   const slug = params.slug;
 
   try {
@@ -42,7 +49,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
     return (
       <main className="min-h-screen bg-gradient-to-tr from-white to-gray-100 py-14 px-6 sm:px-10 lg:px-24 xl:px-32">
         <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 gap-16 items-start">
-          {/* Image */}
+          {/* Product Image */}
           <div className="bg-white rounded-3xl overflow-hidden shadow-xl ring-1 ring-gray-200">
             <div className="aspect-[4/3] relative">
               {imageUrl ? (
@@ -62,7 +69,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
             </div>
           </div>
 
-          {/* Info (Client Component) */}
+          {/* Product Info */}
           <section className="flex flex-col justify-between h-full space-y-6">
             <ProductDetailsClient
               name={product.name}
@@ -71,9 +78,14 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
             />
           </section>
         </div>
+
+        {/* Cart */}
         <div className="mt-10">
-      <CartWrapper />
-    </div>
+          <CartWrapper />
+        </div>
+
+        {/* ✅ Similar Products */}
+        <SimilarProducts relatedRefs={product.relatedproducts || []} />
       </main>
     );
   } catch {
