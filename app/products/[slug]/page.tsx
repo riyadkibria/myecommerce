@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
 import CartWrapper from "./CartWrapper";
-import SimilarProducts from "@/components/SimilarProducts"; // ✅ import the component
+import SimilarProducts from "@/app/components/SimilarProducts"; // ✅ import the component
 
 const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
