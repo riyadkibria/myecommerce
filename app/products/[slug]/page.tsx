@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
 import CartWrapper from "./CartWrapper";
-import SimilarProducts from "@/app/components/SimilarProducts"; // ✅ import the component
+import SimilarProducts from "@/app/components/SimilarProducts";
 
 const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
@@ -20,7 +20,7 @@ interface MyProduct {
   description: string;
   Price?: number | string;
   image?: { filename: string } | string;
-  relatedproducts?: RelatedRef[]; // ✅ ensure field matches your Storyblok field
+  relatedproducts?: RelatedRef[]; // should match Storyblok field exactly
 }
 
 function getImageUrl(image: MyProduct["image"]): string | null {
@@ -41,12 +41,25 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
       version: "draft",
     });
 
-    if (!response?.data?.story?.content) return notFound();
+    if (!response?.data?.story?.content) {
+      console.error("Product content not found");
+      return notFound();
+    }
 
     const product: MyProduct = response.data.story.content;
 
-    // Debug: Check relatedproducts data from Storyblok
-    console.log("Related products field:", product.relatedproducts);
+    // Debug logs for related products field
+    console.log("Product slug:", slug);
+    console.log("Related products field (raw):", product.relatedproducts);
+
+    // Defensive check if relatedproducts exists and is array
+    if (!product.relatedproducts || !Array.isArray(product.relatedproducts)) {
+      console.warn("Related products field is missing or not an array");
+    } else if (product.relatedproducts.length === 0) {
+      console.info("Related products array is empty");
+    } else {
+      console.log("Related products count:", product.relatedproducts.length);
+    }
 
     const imageUrl = getImageUrl(product.image);
 
@@ -92,7 +105,8 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
         <SimilarProducts relatedRefs={product.relatedproducts || []} />
       </main>
     );
-  } catch {
+  } catch (error) {
+    console.error("Error loading product page:", error);
     return notFound();
   }
 }
