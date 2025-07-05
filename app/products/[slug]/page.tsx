@@ -2,7 +2,7 @@ import StoryblokClient from "storyblok-js-client";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
-import CartWrapper from "./CartWrapper";
+import CartWrapper from "./CartWrapper"; // or wherever you put it
 
 const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
@@ -26,7 +26,7 @@ function getImageUrl(image: MyProduct["image"]): string | null {
 }
 
 export default async function Page(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
+  const params = await props.params; // await here!
   const slug = params.slug;
 
   try {
@@ -40,40 +40,30 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
     const imageUrl = getImageUrl(product.image);
 
     return (
-      <main className="min-h-screen bg-gradient-to-br from-white to-gray-100 py-12 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          {/* Image Section */}
-          <div className="bg-white rounded-3xl shadow-xl ring-1 ring-gray-200 overflow-hidden group">
+      <main className="min-h-screen bg-gradient-to-tr from-white to-gray-100 py-14 px-6 sm:px-10 lg:px-24 xl:px-32">
+        <div className="max-w-[1600px] mx-auto grid lg:grid-cols-2 gap-16 items-start">
+          {/* Image */}
+          <div className="bg-white rounded-3xl overflow-hidden shadow-xl ring-1 ring-gray-200">
             <div className="aspect-[4/3] relative">
               {imageUrl ? (
                 <Image
                   src={imageUrl}
-                  alt={product.name || "Product Image"}
+                  alt={product.name || "Product"}
                   fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 hover:scale-105"
                   unoptimized
                   priority
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm font-medium">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-base font-semibold">
                   No image available
                 </div>
               )}
             </div>
           </div>
 
-          {/* Product Info Section */}
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-                {product.name}
-              </h1>
-              <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                {product.description}
-              </p>
-            </div>
-
-            {/* Pricing + Actions (Client Component) */}
+          {/* Info (Client Component) */}
+          <section className="flex flex-col justify-between h-full space-y-6">
             <ProductDetailsClient
               name={product.name}
               description={product.description}
@@ -81,14 +71,12 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
             />
           </section>
         </div>
-
-        {/* Cart CTA or Related Products */}
-        <div className="mt-14 max-w-6xl mx-auto">
-          <CartWrapper />
-        </div>
+        <div className="mt-10">
+      <CartWrapper />
+    </div>
       </main>
     );
   } catch {
-  return notFound();
-}
+    return notFound();
+  }
 }
