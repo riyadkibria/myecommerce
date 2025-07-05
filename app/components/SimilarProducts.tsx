@@ -11,6 +11,7 @@ const Storyblok = new StoryblokClient({
 
 interface RelatedRef {
   uuid: string;
+  full_slug?: string;
 }
 
 interface ProductContent {
@@ -26,20 +27,23 @@ interface ProductStory {
 }
 
 export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
-  if (!relatedRefs?.length) {
+  if (!relatedRefs || relatedRefs.length === 0) {
     console.log("SimilarProducts: No relatedRefs passed or empty");
     return null;
   }
 
+  // Extract UUIDs from relatedRefs array
+  const uuids = relatedRefs.map((r) => r.uuid).join(",");
+
   try {
-    const uuids = relatedRefs.map(r => r.uuid).join(",");
     const res = await Storyblok.get("cdn/stories", {
       version: "draft",
       by_uuids: uuids,
     });
 
-    const products: ProductStory[] = res.data.stories ?? [];
-    if (!products.length) {
+    const relatedProducts: ProductStory[] = res.data.stories;
+
+    if (!relatedProducts || relatedProducts.length === 0) {
       console.log("SimilarProducts: No valid related products fetched");
       return null;
     }
@@ -48,12 +52,16 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
       <section className="mt-20 max-w-6xl mx-auto">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {products.map(({ uuid, slug, content: { name, Price, image } }) => {
-            const imageUrl = image?.filename ? `https://a.storyblok.com${image.filename}` : null;
+          {relatedProducts.map((item) => {
+            const { name, Price, image } = item.content;
+            const imageUrl = image?.filename
+              ? `https://a.storyblok.com${image.filename}`
+              : null;
+
             return (
               <Link
-                key={uuid}
-                href={`/products/${slug}`}
+                key={item.uuid}
+                href={`/products/${item.slug}`}
                 className="block bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden"
               >
                 {imageUrl ? (
@@ -71,7 +79,7 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
                 )}
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
-                  <p className="text-sm text-gray-600">${(Price ?? 0).toFixed(2)}</p>
+                  <p className="text-sm text-gray-600">${Number(Price || 0).toFixed(2)}</p>
                 </div>
               </Link>
             );
