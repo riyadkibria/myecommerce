@@ -32,7 +32,6 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
     return null;
   }
 
-  // Extract UUIDs from relatedRefs array
   const uuids = relatedRefs.map((r) => r.uuid).join(",");
 
   try {
@@ -54,8 +53,12 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((item) => {
             const { name, Price, image } = item.content;
+
+            // ✅ Handle image URL starting with `//`
             const imageUrl = image?.filename
-              ? `https://a.storyblok.com${image.filename}`
+              ? image.filename.startsWith("//")
+                ? `https:${image.filename}`
+                : image.filename
               : null;
 
             return (
