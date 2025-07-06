@@ -5,13 +5,11 @@ import ProductDetailsClient from "./ProductDetailsClient";
 import CartWrapper from "./CartWrapper";
 import SimilarProducts from "@/app/components/SimilarProducts";
 
-// ✅ Setup Storyblok client
 const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
   cache: { clear: "auto", type: "memory" },
 });
 
-// ✅ Types
 interface RelatedRef {
   uuid: string;
   full_slug: string;
@@ -22,37 +20,46 @@ interface MyProduct {
   description: string;
   Price?: number | string;
   image?: { filename: string } | string;
-  relatedproducts?: RelatedRef[];
+  relatedproducts?: RelatedRef[]; // should match Storyblok field exactly
 }
 
 function getImageUrl(image: MyProduct["image"]): string | null {
   if (typeof image === "string") {
-    return image.startsWith("//") ? `https:${image}` : image;
+    return image.startsWith("//") ? https:${image} : image;
   } else if (image?.filename) {
-    return `https://a.storyblok.com${image.filename}`;
+    return https://a.storyblok.com${image.filename};
   }
   return null;
 }
 
-// ✅ Correct function signature
-export default async function Page({ params }: { params: { slug: string } }) {
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const slug = params.slug;
 
   try {
-    const response = await Storyblok.get(`cdn/stories/products/${slug}`, {
+    const response = await Storyblok.get(cdn/stories/products/${slug}, {
       version: "draft",
     });
 
     if (!response?.data?.story?.content) {
-      console.error("❌ Product content not found");
+      console.error("Product content not found");
       return notFound();
     }
 
     const product: MyProduct = response.data.story.content;
 
-    // Debug logs
-    console.log("✅ Product slug:", slug);
-    console.log("🧩 Related products:", product.relatedproducts);
+    // Debug logs for related products field
+    console.log("Product slug:", slug);
+    console.log("Related products field (raw):", product.relatedproducts);
+
+    // Defensive check if relatedproducts exists and is array
+    if (!product.relatedproducts || !Array.isArray(product.relatedproducts)) {
+      console.warn("Related products field is missing or not an array");
+    } else if (product.relatedproducts.length === 0) {
+      console.info("Related products array is empty");
+    } else {
+      console.log("Related products count:", product.relatedproducts.length);
+    }
 
     const imageUrl = getImageUrl(product.image);
 
@@ -99,7 +106,9 @@ export default async function Page({ params }: { params: { slug: string } }) {
       </main>
     );
   } catch (error) {
-    console.error("❌ Error loading product page:", error);
+    console.error("Error loading product page:", error);
     return notFound();
   }
 }
+
+
