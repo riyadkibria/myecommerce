@@ -31,7 +31,7 @@ interface ProductStory {
 
 export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
   if (!relatedRefs || relatedRefs.length === 0) {
-    console.log("SimilarProducts: No relatedRefs passed or empty");
+    console.log("❌ SimilarProducts: No relatedRefs passed or empty");
     return null;
   }
 
@@ -46,7 +46,7 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
     const relatedProducts: ProductStory[] = res.data.stories;
 
     if (!relatedProducts || relatedProducts.length === 0) {
-      console.log("SimilarProducts: No valid related products fetched");
+      console.log("❌ SimilarProducts: No valid related products fetched");
       return null;
     }
 
@@ -55,15 +55,20 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((item) => {
-            // ✅ Use body[0] if needed
             const block = item.content.body?.[0] || item.content;
 
-            const name = block.name || "Unnamed Product";
-            const price = block.Price || 0;
+            // 🐞 Debug logs
+            console.log("🔍 Product Block:", block);
+            console.log("🖼️ Image object:", block.image);
+            console.log("🧾 Product name:", block.name);
+            console.log("💲 Price:", block.Price);
+
             const image = block.image?.filename;
             const imageUrl = image?.startsWith("//")
               ? `https:${image}`
-              : image || null;
+              : image
+              ? `https://a.storyblok.com${image}`
+              : null;
 
             return (
               <Link
@@ -74,19 +79,19 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
-                    alt={name}
+                    alt={block.name || "Product"}
                     width={400}
                     height={300}
                     className="w-full h-48 object-cover"
                   />
                 ) : (
                   <div className="w-full h-48 flex items-center justify-center text-gray-400">
-                    No Image
+                    ❌ No Image
                   </div>
                 )}
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
-                  <p className="text-sm text-gray-600">${Number(price).toFixed(2)}</p>
+                  <h3 className="text-lg font-semibold text-gray-800">{block.name}</h3>
+                  <p className="text-sm text-gray-600">${Number(block.Price || 0).toFixed(2)}</p>
                 </div>
               </Link>
             );
@@ -95,7 +100,7 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
       </section>
     );
   } catch (error) {
-    console.error("SimilarProducts: Failed to fetch related products", error);
+    console.error("❌ SimilarProducts: Failed to fetch related products", error);
     return null;
   }
 }
