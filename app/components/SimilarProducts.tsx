@@ -13,20 +13,18 @@ interface RelatedRef {
   uuid: string;
 }
 
+interface ProductContent {
+  name?: string;
+  Price?: number;
+  image?: {
+    filename: string;
+  };
+}
+
 interface ProductStory {
   uuid: string;
   slug: string;
-  content: {
-    name?: string;
-    Price?: number;
-    image?: { filename: string };
-    body?: {
-      component: string;
-      name?: string;
-      Price?: number;
-      image?: { filename: string };
-    }[];
-  };
+  content: ProductContent;
 }
 
 export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
@@ -55,19 +53,12 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((item) => {
-            const block = item.content.body?.[0] || item.content;
+            const { name, Price, image } = item.content;
 
-            // 🐞 Debug logs
-            console.log("🔍 Product Block:", block);
-            console.log("🖼️ Image object:", block.image);
-            console.log("🧾 Product name:", block.name);
-            console.log("💲 Price:", block.Price);
-
-            const image = block.image?.filename;
-            const imageUrl = image?.startsWith("//")
-              ? `https:${image}`
-              : image
-              ? `https://a.storyblok.com${image}`
+            const imageUrl = image?.filename?.startsWith("//")
+              ? `https:${image.filename}`
+              : image?.filename
+              ? `https://a.storyblok.com${image.filename}`
               : null;
 
             return (
@@ -79,19 +70,19 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
-                    alt={block.name || "Product"}
+                    alt={name || "Product"}
                     width={400}
                     height={300}
                     className="w-full h-48 object-cover"
                   />
                 ) : (
                   <div className="w-full h-48 flex items-center justify-center text-gray-400">
-                    ❌ No Image
+                    No Image
                   </div>
                 )}
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">{block.name}</h3>
-                  <p className="text-sm text-gray-600">${Number(block.Price || 0).toFixed(2)}</p>
+                  <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
+                  <p className="text-sm text-gray-600">${Number(Price || 0).toFixed(2)}</p>
                 </div>
               </Link>
             );
