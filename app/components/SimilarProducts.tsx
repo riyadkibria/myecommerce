@@ -16,7 +16,7 @@ interface RelatedRef {
 interface ProductContent {
   name?: string;
   Price?: number;
-  image?: {
+  Image?: {
     filename: string;
   };
 }
@@ -25,6 +25,14 @@ interface ProductStory {
   uuid: string;
   slug: string;
   content: ProductContent;
+}
+
+// Helper to get a full image URL from Storyblok filename
+function getImageUrl(filename?: string) {
+  if (!filename) return null;
+  if (filename.startsWith("http")) return filename;
+  if (filename.startsWith("//")) return `https:${filename}`;
+  return `https://a.storyblok.com${filename}`;
 }
 
 export default async function SimilarProducts({ relatedRefs }: { relatedRefs: RelatedRef[] }) {
@@ -53,13 +61,9 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((item) => {
-            const { name, Price, image } = item.content;
+            const { name, Price, Image } = item.content;
 
-            const imageUrl = image?.filename?.startsWith("//")
-              ? `https:${image.filename}`
-              : image?.filename
-              ? `https://a.storyblok.com${image.filename}`
-              : null;
+            const imageUrl = getImageUrl(Image?.filename);
 
             return (
               <Link
