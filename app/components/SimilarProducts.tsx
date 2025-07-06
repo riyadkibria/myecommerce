@@ -27,7 +27,7 @@ interface ProductStory {
   content: ProductContent;
 }
 
-// Helper to get a full image URL from Storyblok filename
+// Helper to get full image URL
 function getImageUrl(filename?: string) {
   if (!filename) return null;
   if (filename.startsWith("http")) return filename;
@@ -61,9 +61,9 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((item) => {
-            const { name, Price, Image } = item.content;
+            const { name, Price, Image: imageData } = item.content;
 
-            const imageUrl = getImageUrl(Image?.filename);
+            const imageUrl = getImageUrl(imageData?.filename);
 
             return (
               <Link
