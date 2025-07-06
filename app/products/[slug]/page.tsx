@@ -20,24 +20,24 @@ interface MyProduct {
   description: string;
   Price?: number | string;
   image?: { filename: string } | string;
-  relatedproducts?: RelatedRef[]; // should match Storyblok field exactly
+  relatedproducts?: RelatedRef[];
 }
 
 function getImageUrl(image: MyProduct["image"]): string | null {
   if (typeof image === "string") {
-    return image.startsWith("//") ? https:${image} : image;
+    return image.startsWith("//") ? `https:${image}` : image;
   } else if (image?.filename) {
-    return https://a.storyblok.com${image.filename};
+    return `https://a.storyblok.com${image.filename}`;
   }
   return null;
 }
 
-export default async function Page(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params;
+// Note: params is NOT a Promise
+export default async function Page({ params }: { params: { slug: string } }) {
   const slug = params.slug;
 
   try {
-    const response = await Storyblok.get(cdn/stories/products/${slug}, {
+    const response = await Storyblok.get(`cdn/stories/products/${slug}`, {
       version: "draft",
     });
 
@@ -48,11 +48,9 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
 
     const product: MyProduct = response.data.story.content;
 
-    // Debug logs for related products field
     console.log("Product slug:", slug);
     console.log("Related products field (raw):", product.relatedproducts);
 
-    // Defensive check if relatedproducts exists and is array
     if (!product.relatedproducts || !Array.isArray(product.relatedproducts)) {
       console.warn("Related products field is missing or not an array");
     } else if (product.relatedproducts.length === 0) {
@@ -110,5 +108,3 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
     return notFound();
   }
 }
-
-
