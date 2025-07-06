@@ -27,7 +27,7 @@ interface ProductStory {
   content: ProductContent;
 }
 
-// Helper to get full image URL
+// Helper to safely generate image URLs
 function getImageUrl(filename?: string) {
   if (!filename) return null;
   if (filename.startsWith("http")) return filename;
@@ -65,6 +65,12 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
 
             const imageUrl = getImageUrl(imageData?.filename);
 
+            console.log("🔍 Similar Product:", {
+              name,
+              imageFilename: imageData?.filename,
+              imageUrl,
+            });
+
             return (
               <Link
                 key={item.uuid}
@@ -78,10 +84,11 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
                     width={400}
                     height={300}
                     className="w-full h-48 object-cover"
+                    unoptimized={true} // disable optimization for debug
                   />
                 ) : (
-                  <div className="w-full h-48 flex items-center justify-center text-gray-400">
-                    No Image
+                  <div className="w-full h-48 flex items-center justify-center text-red-500">
+                    ⚠️ No Image Available
                   </div>
                 )}
                 <div className="p-4">
