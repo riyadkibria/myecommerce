@@ -27,7 +27,7 @@ interface ProductStory {
   content: ProductContent;
 }
 
-// Helper to safely generate image URLs
+// Helper to generate proper image URLs
 function getImageUrl(filename?: string) {
   if (!filename) return null;
   if (filename.startsWith("http")) return filename;
@@ -42,6 +42,7 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
   }
 
   const uuids = relatedRefs.map((r) => r.uuid).join(",");
+  console.log("🧩 UUIDs to fetch:", uuids);
 
   try {
     const res = await Storyblok.get("cdn/stories", {
@@ -49,10 +50,12 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
       by_uuids: uuids,
     });
 
+    console.log("📦 Storyblok API response:", res.data);
+
     const relatedProducts: ProductStory[] = res.data.stories;
 
     if (!relatedProducts || relatedProducts.length === 0) {
-      console.log("❌ SimilarProducts: No valid related products fetched");
+      console.log("❌ No related products returned from Storyblok");
       return null;
     }
 
@@ -62,11 +65,12 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {relatedProducts.map((item) => {
             const { name, Price, Image: imageData } = item.content;
-
             const imageUrl = getImageUrl(imageData?.filename);
 
-            console.log("🔍 Similar Product:", {
+            console.log("🔍 Product:", {
+              slug: item.slug,
               name,
+              price: Price,
               imageFilename: imageData?.filename,
               imageUrl,
             });
@@ -84,7 +88,7 @@ export default async function SimilarProducts({ relatedRefs }: { relatedRefs: Re
                     width={400}
                     height={300}
                     className="w-full h-48 object-cover"
-                    unoptimized={true} // disable optimization for debug
+                    unoptimized={true} // optional for debugging image rendering
                   />
                 ) : (
                   <div className="w-full h-48 flex items-center justify-center text-red-500">
