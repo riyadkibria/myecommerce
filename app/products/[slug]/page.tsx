@@ -33,14 +33,16 @@ function getImageUrl(image: MyProduct["image"]): string | null {
 }
 
 // Corrected function signature, no Promise for params
-export default async function Page({ params }: { params: { slug: string } }) {
+
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const slug = params.slug;
 
   try {
-    const response = await Storyblok.get(`cdn/stories/products/${slug}`, {
+    const response = await Storyblok.get(cdn/stories/products/${slug}, {
       version: "draft",
     });
-
+    
     if (!response?.data?.story?.content) {
       console.error("Product content not found");
       return notFound();
