@@ -3,7 +3,6 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
 import CartWrapper from "./CartWrapper";
-import SimilarProducts from "@/app/components/SimilarProducts";
 
 const Storyblok = new StoryblokClient({
   accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN!,
@@ -90,7 +89,6 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
           <CartWrapper />
         </div>
 
-        <SimilarProducts relatedRefs={product.relatedproducts || []} />
       </main>
     );
   } catch (error) {
