@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/app/context/CartContext"; // ✅ Make sure this is the correct path
-import CartMenu from "@/app/components/CartMenu"; // adjust path if needed
-
+import { useCart } from "@/app/context/CartContext"; // ✅ Ensure correct path
+import CartMenu from "@/app/components/CartMenu"; // ✅ Adjust if needed
 
 interface MyProduct {
   component: string;
@@ -40,7 +39,7 @@ export default function Page() {
   const [errorMsg, setErrorMsg] = useState("");
   const [addedToCartIndex, setAddedToCartIndex] = useState<number | null>(null);
 
-  const { addToCart } = useCart(); // ✅ useCart hook to access addToCart
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const token = process.env.NEXT_PUBLIC_STORYBLOK_TOKEN;
@@ -71,7 +70,6 @@ export default function Page() {
       .finally(() => setLoading(false));
   }, []);
 
-  // ✅ Updated Add to Cart Handler
   const handleAddToCart = (product: MyProduct, index: number) => {
     const price =
       typeof product.Price === "string"
@@ -123,8 +121,9 @@ export default function Page() {
 
           return (
             <Link key={slug} href={`/products/${slug}`} passHref legacyBehavior>
-              <a className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-none">
-                <div className="relative w-full pt-[61.8%] bg-gray-100">
+              <a className="flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full min-h-[460px]">
+                {/* Image Section */}
+                <div className="relative w-full h-[220px] bg-gray-100">
                   {imageUrl ? (
                     <Image
                       src={imageUrl}
@@ -140,9 +139,10 @@ export default function Page() {
                   )}
                 </div>
 
+                {/* Content Section */}
                 <div className="p-4 flex flex-col justify-between flex-1">
                   <div className="mb-2">
-                    <h2 className="font-semibold text-gray-800 text-base truncate">
+                    <h2 className="font-semibold text-gray-800 text-base line-clamp-1">
                       {product.name || "Unnamed Product"}
                     </h2>
                     <p className="text-gray-500 text-sm mt-1 line-clamp-2">
@@ -150,19 +150,18 @@ export default function Page() {
                     </p>
                   </div>
 
-                  <div>
+                  {/* Price & Add to Cart */}
+                  <div className="mt-auto">
                     <p className="text-green-600 font-semibold text-sm mb-2">
                       ${product.price ?? "N/A"}
                     </p>
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        handleAddToCart(product, i); // ✅ Pass product here
+                        handleAddToCart(product, i);
                       }}
                       className={`w-full text-sm font-medium px-3 py-2 rounded-md text-white ${
-                        addedToCartIndex === i
-                          ? "bg-green-600"
-                          : "bg-blue-600"
+                        addedToCartIndex === i ? "bg-green-600" : "bg-blue-600"
                       }`}
                     >
                       {addedToCartIndex === i ? "✔ Added" : "🛒 Add to Cart"}
@@ -174,10 +173,11 @@ export default function Page() {
           );
         })}
       </div>
-       {/* ✅ Add cart here */}
-    <div className="mt-10">
-      <CartMenu />
-    </div>
+
+      {/* Cart Component */}
+      <div className="mt-10">
+        <CartMenu />
+      </div>
     </main>
   );
 }
